@@ -10,6 +10,7 @@ public class EditorNotesGPT : EditorWindow
     private bool wordWrap = true;
     private bool needsRepaint = false;
     private GUIStyle textAreaStyle; // Added private member for the text area style
+    private string notesContentString;
 
     // Add menu named "BaaWolf/EditorNotesGPT" to the Unity Editor menu
     [MenuItem("BaaWolf/EditorNotesGPT/Open Notes")]
@@ -73,8 +74,55 @@ public class EditorNotesGPT : EditorWindow
         Debug.Log(notesContent.ToString());
     }
 
+    int GetNumberOfLines(string text)
+    {
+        // Split the text into lines
+        string[] lines = text.Split('\n');
+
+        // Return the number of lines
+        return lines.Length;
+    }
+
     void OnGUI()
     {
+        // Calculate the total height of the content within the text area
+        float contentHeight = textAreaStyle.CalcHeight(new GUIContent(notesContentString), position.width);
+
+        // Calculate the height of the visible area
+        float visibleHeight = position.height; // Assuming 'position.height' is the height of the text area
+
+        // Calculate the estimated line height based on the number of lines and content height
+        float estimatedLineHeight = contentHeight / Mathf.Max(1, GetNumberOfLines(notesContentString));
+
+        // Calculate the number of lines that fit in the visible area
+        int visibleLines = Mathf.FloorToInt(visibleHeight / estimatedLineHeight);
+
+        // Calculate the overlap (e.g., one line overlap)
+        float overlap = estimatedLineHeight * 3; // Overlap of three lines
+
+        // Use visibleLines to determine the scroll increment with one line overlap
+        float scrollIncrement = (visibleLines - 1) * estimatedLineHeight - overlap;
+
+        // Clamp the scroll position to ensure it stays within valid bounds
+        scrollPosition.y = Mathf.Clamp(scrollPosition.y, 0, Mathf.Max(0, contentHeight - visibleHeight));
+
+        Event e = Event.current;
+        if (e.type == EventType.KeyDown)
+        {
+            if (e.keyCode == KeyCode.PageUp)
+            {
+                // Handle Page Up key
+                scrollPosition.y -= scrollIncrement; 
+                e.Use(); // Mark the event as handled
+            }
+            else if (e.keyCode == KeyCode.PageDown)
+            {
+                // Handle Page Down key
+                scrollPosition.y += scrollIncrement;
+                e.Use(); // Mark the event as handled
+            }
+        }
+
         if (textAreaStyle is null)
         {
             textAreaStyle = new GUIStyle(EditorStyles.textArea)
@@ -85,10 +133,21 @@ public class EditorNotesGPT : EditorWindow
 
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
 
-        // Text area for notes with the customized style
-        EditorGUILayout.TextArea(notesContent.ToString(), textAreaStyle, GUILayout.ExpandHeight(true));
+        notesContentString = notesContent.ToString();
+
+        // Convert StringBuilder to string for TextArea display
+        GUI.SetNextControlName("notesTextArea"); // Set a control name for the text area
+        notesContentString = EditorGUILayout.TextArea(notesContentString, textAreaStyle, GUILayout.ExpandHeight(true));
 
         EditorGUILayout.EndScrollView();
+
+        // Update StringBuilder with modified text from TextArea
+        if (!string.Equals(notesContentString, notesContent.ToString()))
+        {
+            notesContent.Clear();
+            notesContent.Append(notesContentString);
+            needsRepaint = true;
+        }
 
         // This marks the horizontal buttons
         EditorGUILayout.BeginHorizontal();
@@ -114,12 +173,13 @@ public class EditorNotesGPT : EditorWindow
         EditorGUILayout.EndHorizontal();
 
         // Repaint the window if needed
-        if (needsRepaint)
+        if (needsRepaint)       
         {
             Repaint();
+           
             needsRepaint = false;
             scrollPosition.y = Mathf.Infinity;
-        }
+        }          
     }
 
     void SaveNotes()
