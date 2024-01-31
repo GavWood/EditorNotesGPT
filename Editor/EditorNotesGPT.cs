@@ -1,9 +1,10 @@
 using UnityEditor;
 using UnityEngine;
+using System.Text; // Add this using directive for StringBuilder
 
 public class EditorNotesGPT : EditorWindow
 {
-    private string notesContent = "";
+    private StringBuilder notesContent = new StringBuilder();
     private string lastSavedNotesContent = "";
     private Vector2 scrollPosition;
     private bool wordWrap = true;
@@ -26,37 +27,21 @@ public class EditorNotesGPT : EditorWindow
     void OnEnable()
     {
         // Load previously saved notes
-        notesContent = EditorPrefs.GetString("MyUnityNotesGPT", "");
-        lastSavedNotesContent = notesContent;
-
-        // Set up the text area style
-        if (EditorStyles.textArea == null)
-        {
-            textAreaStyle = new GUIStyle(GUI.skin.textArea)
-            {
-                wordWrap = true
-            };
-        }
-        else
-        {
-            textAreaStyle = new GUIStyle(EditorStyles.textArea)
-            {
-                wordWrap = true
-            };
-        }
+        notesContent.Append(EditorPrefs.GetString("MyUnityNotesGPT", ""));
+        lastSavedNotesContent = notesContent.ToString();
     }
-    
+
     // Inside your EditorNotesGPT class
     private void SendChatToOpenAI()
     {
-        //string notesContent = EditorPrefs.GetString("MyUnityNotesGPT", "");
+        GUI.FocusControl(null);
 
         // Define the chat dialog
         string[] messages = {
-            notesContent,
+            notesContent.ToString(),
         };
-        
-        if (string.IsNullOrEmpty(notesContent))
+
+        if (string.IsNullOrEmpty(notesContent.ToString()))
         {
             // Display an error dialog if the key is blank
             EditorUtility.DisplayDialog("Error", "Write a programming question in the notes", "OK");
@@ -65,7 +50,7 @@ public class EditorNotesGPT : EditorWindow
 
         string model = "gpt-3.5-turbo";
         float temperature = 0.7f;
-        
+
         // Load the Chat GPT key from EditorPrefs
         string chatGPTKey = EditorPrefs.GetString("ChatGPTKey", "");
 
@@ -81,24 +66,27 @@ public class EditorNotesGPT : EditorWindow
         if (response != null)
         {
             // Do something with the AI's response
-            notesContent += "\nAI: " + response;
+            notesContent.Append("\nAI: ").Append(response);
 
             needsRepaint = true;
         }
-
-        Debug.Log("Repainting window");
-
-        Repaint();
-
-        Debug.Log(notesContent);
+        Debug.Log(notesContent.ToString());
     }
 
     void OnGUI()
     {
+        if (textAreaStyle is null)
+        {
+            textAreaStyle = new GUIStyle(EditorStyles.textArea)
+            {
+                wordWrap = wordWrap
+            };
+        }
+
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
 
         // Text area for notes with the customized style
-        string newNotesContent = EditorGUILayout.TextArea(notesContent, textAreaStyle, GUILayout.ExpandHeight(true));
+        EditorGUILayout.TextArea(notesContent.ToString(), textAreaStyle, GUILayout.ExpandHeight(true));
 
         EditorGUILayout.EndScrollView();
 
@@ -118,43 +106,35 @@ public class EditorNotesGPT : EditorWindow
         }
 
         // Add a button to send a chat message to OpenAI
-        if (GUILayout.Button("Send Chat to OpenAI"))
+        if (GUILayout.Button("Send Text Content to OpenAI"))
         {
             SendChatToOpenAI();
         }
 
         EditorGUILayout.EndHorizontal();
 
-        // Check for "return" key press and scroll to the bottom
-        if (newNotesContent != notesContent)
-        {
-            // Ensure the scroll position is set to the maximum when "return" is pressed
-            scrollPosition.y = Mathf.Infinity;
-
-            // Set the nodes content
-            notesContent = newNotesContent;
-        }
-
         // Repaint the window if needed
         if (needsRepaint)
         {
             Repaint();
             needsRepaint = false;
+            scrollPosition.y = Mathf.Infinity;
         }
     }
 
     void SaveNotes()
     {
         // Save notes using EditorPrefs
-        EditorPrefs.SetString("MyUnityNotesGPT", notesContent);
-        lastSavedNotesContent = notesContent;
+        EditorPrefs.SetString("MyUnityNotesGPT", notesContent.ToString());
+        lastSavedNotesContent = notesContent.ToString();
         Debug.Log("Notes Saved!");
     }
 
     void RevertNotes()
     {
         // Revert notes to last saved content
-        notesContent = lastSavedNotesContent;
+        notesContent.Clear();
+        notesContent.Append(lastSavedNotesContent);
 
         // Indicate that GUI has changed
         GUI.changed = true;
