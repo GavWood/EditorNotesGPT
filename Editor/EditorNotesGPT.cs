@@ -6,6 +6,9 @@ public class EditorNotesGPT : EditorWindow
     private string notesContent = "";
     private string lastSavedNotesContent = "";
     private Vector2 scrollPosition;
+    private bool wordWrap = true;
+    private bool needsRepaint = false;
+    private GUIStyle textAreaStyle; // Added private member for the text area style
 
     // Add menu named "BaaWolf/EditorNotesGPT" to the Unity Editor menu
     [MenuItem("BaaWolf/EditorNotesGPT/Open Notes")]
@@ -25,6 +28,22 @@ public class EditorNotesGPT : EditorWindow
         // Load previously saved notes
         notesContent = EditorPrefs.GetString("MyUnityNotesGPT", "");
         lastSavedNotesContent = notesContent;
+
+        // Set up the text area style
+        if (EditorStyles.textArea == null)
+        {
+            textAreaStyle = new GUIStyle(GUI.skin.textArea)
+            {
+                wordWrap = wordWrap
+            };
+        }
+        else
+        {
+            textAreaStyle = new GUIStyle(EditorStyles.textArea)
+            {
+                wordWrap = wordWrap
+            };
+        }
     }
     
     // Inside your EditorNotesGPT class
@@ -63,7 +82,13 @@ public class EditorNotesGPT : EditorWindow
         {
             // Do something with the AI's response
             notesContent += "\nAI: " + response;
+
+            needsRepaint = true;
         }
+
+        Debug.Log("Repainting window");
+
+        Repaint();
 
         Debug.Log(notesContent);
     }
@@ -72,8 +97,8 @@ public class EditorNotesGPT : EditorWindow
     {
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
 
-        // Text area for notes
-        notesContent = EditorGUILayout.TextArea(notesContent, GUILayout.ExpandHeight(true));
+        // Text area for notes with the customized style
+        notesContent = EditorGUILayout.TextArea(notesContent, textAreaStyle, GUILayout.ExpandHeight(true));
 
         EditorGUILayout.EndScrollView();
 
@@ -98,7 +123,17 @@ public class EditorNotesGPT : EditorWindow
             SendChatToOpenAI();
         }
 
+        // Toggle for word wrap
+        wordWrap = EditorGUILayout.Toggle("Word Wrap", wordWrap);
+
         EditorGUILayout.EndHorizontal();
+
+        // Repaint the window if needed
+        if (needsRepaint)
+        {
+            Repaint();
+            needsRepaint = false;
+        }
     }
 
     void SaveNotes()
