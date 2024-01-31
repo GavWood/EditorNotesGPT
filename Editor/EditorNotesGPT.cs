@@ -30,7 +30,7 @@ public class EditorNotesGPT : EditorWindow
     // Inside your EditorNotesGPT class
     private void SendChatToOpenAI()
     {
-        string notesContent = EditorPrefs.GetString("MyUnityNotesGPT", "Hello, can you help me with coding in Unity and C# please.");
+        string notesContent = "user: Hello can give me a one-line example of the ternary operator?";
 
         // Define the chat dialog
         string[] messages = {
@@ -50,8 +50,6 @@ public class EditorNotesGPT : EditorWindow
             return; // Stop further processing
         }
 
-        EditorUtility.DisplayDialog("Error", "Please specify a Chat GPT key.", "OK");
-
         string response = OpenAIChatHandler.SendChatMessage(chatGPTKey, model, messages, temperature);
 
         if (response != null)
@@ -59,6 +57,8 @@ public class EditorNotesGPT : EditorWindow
             // Do something with the AI's response
             notesContent += "\nAI: " + response;
         }
+
+        Debug.Log(notesContent);
     }
 
     void OnGUI()
@@ -118,58 +118,5 @@ public class EditorNotesGPT : EditorWindow
     {
         // Automatically save when the window is closed
         SaveNotes();
-    }
-}
-
-public class NotesPreferencesWindow : EditorWindow
-{
-    public string chatGPTKey = "no ChatGPT key specified"; // Default key
-
-    [MenuItem("BaaWolf/EditorNotesGPT/Preferences")]
-    public static void ShowWindow()
-    {
-        NotesPreferencesWindow window = GetWindow<NotesPreferencesWindow>("Editor Notes GPT Preferences");
-        window.LoadPreferences(); // Load preferences when opening the window
-        window.Show();
-    }
-
-    void OnGUI()
-    {
-        EditorGUILayout.LabelField("Notes Preferences", EditorStyles.boldLabel);
-
-        chatGPTKey = EditorGUILayout.TextField("Chat GPT API key:", chatGPTKey);
-
-        if (GUILayout.Button("Save Preferences"))
-        {
-            SavePreferences(); // Save preferences when the "Save Preferences" button is clicked
-            Close();
-        }
-    }
-
-    void LoadPreferences()
-    {
-        // Load chatGPT key from EditorPrefs
-        chatGPTKey = EditorPrefs.GetString("ChatGPTKey", "");
-    }
-
-    void SavePreferences()
-    {
-        // Save the chatGPT key to EditorPrefs
-        EditorPrefs.SetString("ChatGPTKey", chatGPTKey);
-    }
-}
-
-public class NotesMenu
-{
-    [MenuItem("BaaWolf/EditorNotesGPT/Open Notes")]
-    public static void OpenNotes()
-    {
-        EditorNotesGPT.ShowWindow();
-    }
-
-    [MenuItem("BaaWolf/EditorNotesGPT/Preferences")]
-    public static void OpenNotesPreferences()
-    {
-        NotesPreferencesWindow.ShowWindow();
     }
 }

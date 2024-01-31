@@ -60,11 +60,11 @@ public class OpenAIChatHandler
             public string content;
         }
 
-        public ChatRequest(string model, string[] dialog, float temperature)
+        public ChatRequest(string model, string[] messages, float temperature)
         {
             this.model = model;
             this.messages = new List<Message>();
-            foreach (var message in dialog)
+            foreach (var message in messages)
             {
                 this.messages.Add(new Message
                 {
