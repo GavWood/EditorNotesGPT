@@ -26,6 +26,40 @@ public class EditorNotesGPT : EditorWindow
         notesContent = EditorPrefs.GetString("MyUnityNotesGPT", "");
         lastSavedNotesContent = notesContent;
     }
+    
+    // Inside your EditorNotesGPT class
+    private void SendChatToOpenAI()
+    {
+        string notesContent = EditorPrefs.GetString("MyUnityNotesGPT", "Hello, can you help me with coding in Unity and C# please.");
+
+        // Define the chat dialog
+        string[] messages = {
+            notesContent,
+        };
+
+        string model = "gpt-3.5-turbo";
+        float temperature = 0.7f;
+        
+        // Load the Chat GPT key from EditorPrefs
+        string chatGPTKey = EditorPrefs.GetString("ChatGPTKey", "");
+
+        if (string.IsNullOrEmpty(chatGPTKey))
+        {
+            // Display an error dialog if the key is blank
+            EditorUtility.DisplayDialog("Error", "Please specify a Chat GPT key.", "OK");
+            return; // Stop further processing
+        }
+
+        EditorUtility.DisplayDialog("Error", "Please specify a Chat GPT key.", "OK");
+
+        string response = OpenAIChatHandler.SendChatMessage(chatGPTKey, model, messages, temperature);
+
+        if (response != null)
+        {
+            // Do something with the AI's response
+            notesContent += "\nAI: " + response;
+        }
+    }
 
     void OnGUI()
     {
@@ -49,6 +83,12 @@ public class EditorNotesGPT : EditorWindow
         if (GUILayout.Button("Revert"))
         {
             RevertNotes();
+        }
+
+        // Add a button to send a chat message to OpenAI
+        if (GUILayout.Button("Send Chat to OpenAI"))
+        {
+            SendChatToOpenAI();
         }
 
         EditorGUILayout.EndHorizontal();
@@ -83,7 +123,7 @@ public class EditorNotesGPT : EditorWindow
 
 public class NotesPreferencesWindow : EditorWindow
 {
-    public string notesKey = "MyUnityNotesGPT"; // Default key
+    public string chatGPTKey = "no ChatGPT key specified"; // Default key
 
     [MenuItem("BaaWolf/EditorNotesGPT/Preferences")]
     public static void ShowWindow()
@@ -97,7 +137,7 @@ public class NotesPreferencesWindow : EditorWindow
     {
         EditorGUILayout.LabelField("Notes Preferences", EditorStyles.boldLabel);
 
-        notesKey = EditorGUILayout.TextField("Notes Key:", notesKey);
+        chatGPTKey = EditorGUILayout.TextField("Chat GPT API key:", chatGPTKey);
 
         if (GUILayout.Button("Save Preferences"))
         {
@@ -108,14 +148,14 @@ public class NotesPreferencesWindow : EditorWindow
 
     void LoadPreferences()
     {
-        // Load the notes key from EditorPrefs
-        notesKey = EditorPrefs.GetString("NotesKey", "MyUnityNotesGPT");
+        // Load chatGPT key from EditorPrefs
+        chatGPTKey = EditorPrefs.GetString("ChatGPTKey", "");
     }
 
     void SavePreferences()
     {
-        // Save the notes key to EditorPrefs
-        EditorPrefs.SetString("NotesKey", notesKey);
+        // Save the chatGPT key to EditorPrefs
+        EditorPrefs.SetString("ChatGPTKey", chatGPTKey);
     }
 }
 
