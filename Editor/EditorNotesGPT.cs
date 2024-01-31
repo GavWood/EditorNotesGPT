@@ -34,14 +34,14 @@ public class EditorNotesGPT : EditorWindow
         {
             textAreaStyle = new GUIStyle(GUI.skin.textArea)
             {
-                wordWrap = wordWrap
+                wordWrap = true
             };
         }
         else
         {
             textAreaStyle = new GUIStyle(EditorStyles.textArea)
             {
-                wordWrap = wordWrap
+                wordWrap = true
             };
         }
     }
@@ -98,11 +98,11 @@ public class EditorNotesGPT : EditorWindow
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
 
         // Text area for notes with the customized style
-        notesContent = EditorGUILayout.TextArea(notesContent, textAreaStyle, GUILayout.ExpandHeight(true));
+        string newNotesContent = EditorGUILayout.TextArea(notesContent, textAreaStyle, GUILayout.ExpandHeight(true));
 
         EditorGUILayout.EndScrollView();
 
-        // Button section
+        // This marks the horizontal buttons
         EditorGUILayout.BeginHorizontal();
 
         // Save button
@@ -123,10 +123,17 @@ public class EditorNotesGPT : EditorWindow
             SendChatToOpenAI();
         }
 
-        // Toggle for word wrap
-        wordWrap = EditorGUILayout.Toggle("Word Wrap", wordWrap);
-
         EditorGUILayout.EndHorizontal();
+
+        // Check for "return" key press and scroll to the bottom
+        if (newNotesContent != notesContent)
+        {
+            // Ensure the scroll position is set to the maximum when "return" is pressed
+            scrollPosition.y = Mathf.Infinity;
+
+            // Set the nodes content
+            notesContent = newNotesContent;
+        }
 
         // Repaint the window if needed
         if (needsRepaint)
