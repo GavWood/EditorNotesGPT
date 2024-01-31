@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+// https://platform.openai.com/docs/guides/text-generation/chat-completions-api
+
 public class OpenAIChatHandler
 {
     private const string apiUrl = "https://api.openai.com/v1/chat/completions";
@@ -42,7 +44,11 @@ public class OpenAIChatHandler
             //LogConversation(chatResponse);
 
             // Return the AI's response (chatResponse.choices[0].message)
-            return chatResponse.choices[0].message.content;
+            string content = chatResponse.choices[0].message.content;
+
+            Debug.Log("Total tokens: " + chatResponse.usage.total_tokens);
+
+            return content;
         }
     }
 
@@ -64,6 +70,12 @@ public class OpenAIChatHandler
         {
             this.model = model;
             this.messages = new List<Message>();
+
+            this.messages.Add(new Message
+            {
+                role = "system",
+                content = "You are a helpful assistant that is providing answers for a Unity Developer.",
+            });
             foreach (var message in messages)
             {
                 this.messages.Add(new Message

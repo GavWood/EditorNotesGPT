@@ -30,12 +30,19 @@ public class EditorNotesGPT : EditorWindow
     // Inside your EditorNotesGPT class
     private void SendChatToOpenAI()
     {
-        string notesContent = "user: Hello can give me a one-line example of the ternary operator?";
+        //string notesContent = EditorPrefs.GetString("MyUnityNotesGPT", "");
 
         // Define the chat dialog
         string[] messages = {
             notesContent,
         };
+        
+        if (string.IsNullOrEmpty(notesContent))
+        {
+            // Display an error dialog if the key is blank
+            EditorUtility.DisplayDialog("Error", "Write a programming question in the notes", "OK");
+            return; // Stop further processing
+        }
 
         string model = "gpt-3.5-turbo";
         float temperature = 0.7f;
@@ -46,7 +53,7 @@ public class EditorNotesGPT : EditorWindow
         if (string.IsNullOrEmpty(chatGPTKey))
         {
             // Display an error dialog if the key is blank
-            EditorUtility.DisplayDialog("Error", "Please specify a Chat GPT key.", "OK");
+            EditorUtility.DisplayDialog("Error", "Please specify a Chat GPT key", "OK");
             return; // Stop further processing
         }
 
