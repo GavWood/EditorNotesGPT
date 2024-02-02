@@ -85,6 +85,14 @@ public class EditorNotesGPT : EditorWindow
 
     void OnGUI()
     {
+        if (textAreaStyle is null)
+        {
+            textAreaStyle = new GUIStyle(EditorStyles.textArea)
+            {
+                wordWrap = wordWrap
+            };
+        }
+
         // Calculate the total height of the content within the text area
         float contentHeight = textAreaStyle.CalcHeight(new GUIContent(notesContentString), position.width);
 
@@ -121,14 +129,6 @@ public class EditorNotesGPT : EditorWindow
                 scrollPosition.y += scrollIncrement;
                 e.Use(); // Mark the event as handled
             }
-        }
-
-        if (textAreaStyle is null)
-        {
-            textAreaStyle = new GUIStyle(EditorStyles.textArea)
-            {
-                wordWrap = wordWrap
-            };
         }
 
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
