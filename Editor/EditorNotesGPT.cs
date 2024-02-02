@@ -31,6 +31,32 @@ public class EditorNotesGPT : EditorWindow
         notesContent.Append(EditorPrefs.GetString("MyUnityNotesGPT", ""));
         lastSavedNotesContent = notesContent.ToString();
     }
+    private void CheckNamespace()
+    {
+        /*
+        if (inputString.Contains("namespace"))
+        {
+            bool replaceNamespace = EditorUtility.DisplayDialog("Namespace Found", "The string contains a namespace. Do you want to replace it?", "Replace", "End");
+
+            if (replaceNamespace)
+            {
+                if (inputString.Contains("namespace XYZ"))
+                {
+                    EditorUtility.DisplayDialog("Namespace Already XYZ", "The namespace is already XYZ.", "OK");
+                }
+                else
+                {
+                    inputString = inputString.Replace("namespace", "namespace XYZ");
+                    EditorUtility.DisplayDialog("Namespace Replaced", "The namespace has been replaced with XYZ.", "OK");
+                }
+            }
+        }
+        else
+        {
+            EditorUtility.DisplayDialog("No Namespace Found", "The string does not contain a namespace.", "OK");
+        }
+        */
+    }
 
     // Inside your EditorNotesGPT class
     private void SendChatToOpenAI()
@@ -49,7 +75,8 @@ public class EditorNotesGPT : EditorWindow
             return; // Stop further processing
         }
 
-        string model = "gpt-3.5-turbo";
+        //string model = "gpt-3.5-turbo";
+        string model = "gpt-4-turbo-preview";
         float temperature = 0.7f;
 
         // Load the Chat GPT key from EditorPrefs
@@ -83,16 +110,8 @@ public class EditorNotesGPT : EditorWindow
         return lines.Length;
     }
 
-    void OnGUI()
+    private void UpdateScrollPosition()
     {
-        if (textAreaStyle is null)
-        {
-            textAreaStyle = new GUIStyle(EditorStyles.textArea)
-            {
-                wordWrap = wordWrap
-            };
-        }
-
         // Calculate the total height of the content within the text area
         float contentHeight = textAreaStyle.CalcHeight(new GUIContent(notesContentString), position.width);
 
@@ -111,8 +130,6 @@ public class EditorNotesGPT : EditorWindow
         // Use visibleLines to determine the scroll increment with one line overlap
         float scrollIncrement = (visibleLines - 1) * estimatedLineHeight - overlap;
 
-        // Clamp the scroll position to ensure it stays within valid bounds
-        scrollPosition.y = Mathf.Clamp(scrollPosition.y, 0, Mathf.Max(0, contentHeight - visibleHeight));
 
         Event e = Event.current;
         if (e.type == EventType.KeyDown)
@@ -120,7 +137,7 @@ public class EditorNotesGPT : EditorWindow
             if (e.keyCode == KeyCode.PageUp)
             {
                 // Handle Page Up key
-                scrollPosition.y -= scrollIncrement; 
+                scrollPosition.y -= scrollIncrement;
                 e.Use(); // Mark the event as handled
             }
             else if (e.keyCode == KeyCode.PageDown)
@@ -130,6 +147,22 @@ public class EditorNotesGPT : EditorWindow
                 e.Use(); // Mark the event as handled
             }
         }
+        // Clamp the scroll position to ensure it stays within valid bounds
+        scrollPosition.y = Mathf.Clamp(scrollPosition.y, 0, Mathf.Max(0, contentHeight - visibleHeight));
+    }
+
+    void OnGUI()
+    {
+        // Create a text style. We could check is null but why we are developing it is useful to 
+        // be able to change the style on the fly
+        textAreaStyle = new GUIStyle(EditorStyles.textArea)
+        {
+            normal = { textColor = Color.white }, // Set text color to white
+            wordWrap = wordWrap
+        };
+
+        // Sets the scroll position with keys
+        UpdateScrollPosition();
 
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
 
