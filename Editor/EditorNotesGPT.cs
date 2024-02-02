@@ -11,6 +11,7 @@ public class EditorNotesGPT : EditorWindow
     private bool needsRepaint = false;
     private GUIStyle textAreaStyle; // Added private member for the text area style
     private string notesContentString;
+    private float maxScroll;
 
     // Add menu named "BaaWolf/EditorNotesGPT" to the Unity Editor menu
     [MenuItem("BaaWolf/EditorNotesGPT/Open Notes")]
@@ -130,6 +131,8 @@ public class EditorNotesGPT : EditorWindow
         // Use visibleLines to determine the scroll increment with one line overlap
         float scrollIncrement = (visibleLines - 1) * estimatedLineHeight - overlap;
 
+        // Set max scroll
+        maxScroll = Mathf.Max(0, contentHeight - visibleHeight) + overlap;
 
         Event e = Event.current;
         if (e.type == EventType.KeyDown)
@@ -138,17 +141,23 @@ public class EditorNotesGPT : EditorWindow
             {
                 // Handle Page Up key
                 scrollPosition.y -= scrollIncrement;
+
+                // Clamp the scroll position to ensure it stays within valid bounds
+                scrollPosition.y = Mathf.Clamp(scrollPosition.y, 0, Mathf.Max(0, maxScroll));
+
                 e.Use(); // Mark the event as handled
             }
             else if (e.keyCode == KeyCode.PageDown)
             {
                 // Handle Page Down key
                 scrollPosition.y += scrollIncrement;
+
+                // Clamp the scroll position to ensure it stays within valid bounds
+                scrollPosition.y = Mathf.Clamp(scrollPosition.y, 0, Mathf.Max(0, maxScroll));
+
                 e.Use(); // Mark the event as handled
             }
         }
-        // Clamp the scroll position to ensure it stays within valid bounds
-        scrollPosition.y = Mathf.Clamp(scrollPosition.y, 0, Mathf.Max(0, contentHeight - visibleHeight));
     }
 
     void OnGUI()
@@ -170,6 +179,7 @@ public class EditorNotesGPT : EditorWindow
 
         // Convert StringBuilder to string for TextArea display
         GUI.SetNextControlName("notesTextArea"); // Set a control name for the text area
+
         notesContentString = EditorGUILayout.TextArea(notesContentString, textAreaStyle, GUILayout.ExpandHeight(true));
 
         EditorGUILayout.EndScrollView();
@@ -197,7 +207,7 @@ public class EditorNotesGPT : EditorWindow
             RevertNotes();
         }
 
-        // Add a button to send a chat message to OpenAI
+        // Send chat to OpenAI
         if (GUILayout.Button("Send Text Content to OpenAI"))
         {
             SendChatToOpenAI();
@@ -211,7 +221,8 @@ public class EditorNotesGPT : EditorWindow
             Repaint();
            
             needsRepaint = false;
-            scrollPosition.y = Mathf.Infinity;
+            
+            scrollPosition.y = maxScroll;
         }          
     }
 
