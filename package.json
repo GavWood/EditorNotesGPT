@@ -11,13 +11,13 @@
     "baawolf",
     "utility"
   ],
-  "homepage": "https://github.com/baawolf/EditorNotesGPT.git",
+  "homepage": "https://github.com/gavwood/EditorNotesGPT.git",
   "bugs": {
-    "url": "https://github.com/baawolf/EditorNotesGPT/issues"
+    "url": "https://github.com/gavwood/EditorNotesGPT/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/baawolf/EditorNotesGPT.git"
+    "url": "git+ssh://git@github.com/gavwood/EditorNotesGPT.git"
   },
   "license": "MIT",
   "author": "BaaWolf (https://baawolf.com)",
