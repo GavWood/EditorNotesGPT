@@ -28,7 +28,7 @@ Open `Packages/manifest.json` with your favorite text editor. Add following line
 ```json
 {
   "dependencies": {
-    "com.baawolf.EditorNotes": "https://github.com/baawolf/EditorNotes.git"
+    "com.baawolf.EditorNotesGPT": "https://github.com/baawolf/EditorNotesGPT.git"
   }
 }
 ```
