@@ -1,8 +1,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-# EditorNotes
+# EditorNotesGPT
 
-Creates a notes tab for use inside the Editor
+Creates a notes tab for use inside the Editor which is powered by Chat-GPT
 
 - [How to use](#how-to-use)
 - [Install](#install)
@@ -12,15 +12,11 @@ Creates a notes tab for use inside the Editor
 
 ## How to use
 
-Using the BaaWolf menu at the top of your Unity Editor window select Notes. This creates a floating notes window.
+Using the BaaWolf menu at the top of your Unity Editor window select EditorNotesGPT. This creates a floating notes window.
 
-Notes are not sent over the Internet. They are stored in Editor preferences so your work is saved locally and private.
-
-Use this how you like. However, it is not intended as a replacement for proper documentation. Best used for a quick *todo* or thoughts.
+Saved notes are stored in Editor preferences so your work is saved locally and private.
 
 This comes with no warranty or promise that notes cannot be lost.
-
-![image](https://github.com/GavWood/EditorNotes/assets/17795588/8aef5919-3f6c-4e1a-bb81-3387cba6aaaf)
 
 ## Install
 
@@ -39,6 +35,6 @@ Open `Packages/manifest.json` with your favorite text editor. Add following line
 
 ## License
 
-MIT License
+This prototype is not connected with OpenAI's ChatGPT in any way. The code has been released under the MIT License. 
 
 Copyright © 2024 BaaWolf
