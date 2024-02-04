@@ -113,6 +113,11 @@ public class EditorNotesGPT : EditorWindow
 
     private void UpdateScrollPosition()
     {
+        if (notesContentString is null)
+        {
+            return;
+        }
+        
         // Calculate the total height of the content within the text area
         float contentHeight = textAreaStyle.CalcHeight(new GUIContent(notesContentString), position.width);
 
